@@ -4,6 +4,25 @@
 
 CaloWise is a modern web application that helps you track and calculate the calorie content of your meals. Built with Next.js, it provides a seamless user experience with authentication, meal history tracking, and real-time calorie calculations.
 
+## 🌐 Live Demo
+
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://calowise.vercel.app/)
+
+**🔗 [View Live Application →](https://calowise.vercel.app/)**
+
+Visit the deployed application at [https://calowise.vercel.app/](https://calowise.vercel.app/) to see CaloWise in action!
+
+## 📸 Screenshots
+
+Screenshot 2025-11-15 at 12.12.19 PM.png
+Screenshot 2025-11-15 at 12.12.08 PM.png
+Screenshot 2025-11-15 at 12.12.00 PM.png
+Screenshot 2025-11-15 at 12.11.22 PM.png
+Screenshot 2025-11-15 at 12.11.08 PM.png
+Screenshot 2025-11-15 at 12.10.45 PM.png
+Screenshot 2025-11-15 at 12.10.38 PM.png
+Screenshot 2025-11-15 at 12.10.27 PM.png
+
 ## ✨ Features
 
 - 🔐 **User Authentication** - Secure registration and login with JWT token management
