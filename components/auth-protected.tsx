@@ -20,19 +20,26 @@ export function AuthProtected({
 }: AuthProtectedProps) {
 	const router = useRouter();
 	const token = useAuthStore((s) => s.token);
+	const hasHydrated = useAuthStore((s) => s._hasHydrated);
 	const [isChecking, setIsChecking] = React.useState(true);
 
 	React.useEffect(() => {
+		// Wait for Zustand persist to hydrate before checking token
+		if (!hasHydrated) {
+			return;
+		}
+
 		if (!token) {
 			router.push(redirectTo);
 		} else {
 			setIsChecking(false);
 		}
-	}, [token, router, redirectTo]);
+	}, [token, hasHydrated, router, redirectTo]);
 
-	if (isChecking || !token) {
+	// Show loader while waiting for hydration or checking auth
+	if (!hasHydrated || isChecking || !token) {
 		return (
-			fallback ?? <PageLoader message="Redirecting to login..." />
+			fallback ?? <PageLoader message="Loading..." />
 		);
 	}
 

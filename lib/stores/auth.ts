@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { useHistoryStore } from "./history";
 
 export type UserInfo = {
 	firstName?: string;
@@ -12,10 +13,12 @@ export type UserInfo = {
 type AuthState = {
 	token: string | null;
 	user: UserInfo | null;
+	_hasHydrated: boolean;
 	setToken: (token: string | null) => void;
 	setUser: (user: UserInfo | null) => void;
 	clearToken: () => void;
 	getToken: () => string | null;
+	setHasHydrated: (state: boolean) => void;
 };
 
 export const useAuthStore = create<AuthState>()(
@@ -23,15 +26,37 @@ export const useAuthStore = create<AuthState>()(
 		(set, get) => ({
 			token: null,
 			user: null,
-			setToken: (token) => set({ token }),
-			setUser: (user) => set({ user }),
-			// Only clear token on logout, keep user info for next login
-			clearToken: () => set({ token: null }),
+			_hasHydrated: false,
+			setToken: (token) => {
+				set({ token });
+				const user = get().user;
+				if (user?.email && token) {
+					useHistoryStore.getState().loadUserHistory(user.email);
+				}
+			},
+			setUser: (user) => {
+				set({ user });
+				const token = get().token;
+				if (user?.email && token) {
+					useHistoryStore.getState().loadUserHistory(user.email);
+				}
+			},
+			// Clear token and history on logout
+			clearToken: () => {
+				set({ token: null });
+				useHistoryStore.getState().clearUserHistory();
+			},
 			getToken: () => get().token,
+			setHasHydrated: (state) => {
+				set({ _hasHydrated: state });
+			},
 		}),
 		{
 			name: "auth",
 			storage: createJSONStorage(() => localStorage),
+			onRehydrateStorage: () => (state) => {
+				state?.setHasHydrated(true);
+			},
 		}
 	)
 );

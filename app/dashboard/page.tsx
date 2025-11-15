@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Autocomplete } from "@/components/ui/autocomplete";
 import {
 	caloriesFormSchema,
 	type CaloriesFormValues,
@@ -25,6 +26,7 @@ import { useHistoryStore } from "@/lib/stores/history";
 import { AuthProtected } from "@/components/auth-protected";
 import { useToast } from "@/components/ui/toast";
 import { Loader } from "@/components/ui/loader";
+import { useDishAutocomplete } from "@/lib/hooks/use-dish-autocomplete";
 
 export default function DashboardPage() {
 	const router = useRouter();
@@ -43,6 +45,9 @@ export default function DashboardPage() {
 	// Clear error when user starts typing
 	const dishNameValue = form.watch("dish_name");
 	const servingsValue = form.watch("servings");
+	
+	// Autocomplete hook , uses user's search history
+	const { options: autocompleteOptions } = useDishAutocomplete(dishNameValue || "");
 	
 	React.useEffect(() => {
 		if (submitError && (dishNameValue || servingsValue !== 1)) {
@@ -135,9 +140,12 @@ export default function DashboardPage() {
 							<FormItem>
 								<FormLabel>Dish Name</FormLabel>
 								<FormControl>
-									<Input
+									<Autocomplete
+										options={autocompleteOptions}
+										value={field.value}
+										onChange={field.onChange}
 										placeholder="chicken salad"
-										{...field}
+										disabled={isSubmitting}
 									/>
 								</FormControl>
 								<FormMessage />

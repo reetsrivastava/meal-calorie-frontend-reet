@@ -28,18 +28,19 @@ import { Loader } from "@/components/ui/loader";
 export default function LoginPage() {
 	const router = useRouter();
 	const token = useAuthStore((s) => s.token);
+	const hasHydrated = useAuthStore((s) => s._hasHydrated);
 	const setToken = useAuthStore((s) => s.setToken);
 	const { addToast } = useToast();
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 	const [submitError, setSubmitError] = React.useState<string | null>(null);
 	const [showPassword, setShowPassword] = React.useState(false);
 
-	// Redirecting if logged in
+	// Redirecting if logged in (wait for hydration first)
 	React.useEffect(() => {
-		if (token) {
+		if (hasHydrated && token) {
 			router.push("/");
 		}
-	}, [token, router]);
+	}, [token, hasHydrated, router]);
 
 	const form = useForm<LoginFormValues>({
 		resolver: zodResolver(loginFormSchema),
@@ -74,17 +75,16 @@ export default function LoginPage() {
 			const data: { token: string; firstName?: string; lastName?: string; user?: { firstName: string; lastName: string } } = await response.json();
 			
 			if (data?.token) {
-				setToken(data.token);
-				
 				const firstName = data.firstName || data.user?.firstName;
 				const lastName = data.lastName || data.user?.lastName;
 				
-				if (firstName && lastName) {
-					useAuthStore.getState().setUser({ firstName, lastName });
-				} else {
-					// Getting user email from form
-					useAuthStore.getState().setUser({ email: values.email });
-				}
+				const userInfo = {
+					email: values.email,
+					...(firstName && lastName ? { firstName, lastName } : {}),
+				};
+				
+				useAuthStore.getState().setUser(userInfo);
+				setToken(data.token);
 			}
 			
 			addToast({
@@ -108,12 +108,14 @@ export default function LoginPage() {
 		}
 	};
 
-	if (token) {
+	if (!hasHydrated || (hasHydrated && token)) {
 		return (
 			<div className="mx-auto w-full max-w-md px-4 py-10">
 				<div className="flex flex-col items-center justify-center gap-4">
 					<Loader size="lg" />
-					<p className="text-muted-foreground">Redirecting to homepage...</p>
+					<p className="text-muted-foreground">
+						{!hasHydrated ? "Loading..." : "Redirecting to homepage..."}
+					</p>
 				</div>
 			</div>
 		);

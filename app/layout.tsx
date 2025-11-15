@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/header";
 import { ToastProvider } from "@/components/ui/toast";
+import { HistoryInitializer } from "@/components/history-initializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +38,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ToastProvider>
+            <HistoryInitializer />
             <div className="flex min-h-screen flex-col">
               <Header />
               <main className="flex-1">{children}</main>
